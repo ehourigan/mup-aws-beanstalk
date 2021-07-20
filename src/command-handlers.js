@@ -115,7 +115,7 @@ export async function setup(api) {
   await ensureRoleExists(serviceRoleName, serviceRole);
   await ensurePoliciesAttached(config, serviceRoleName, [
     'arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkEnhancedHealth',
-    'arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkService'
+    'arn:aws:iam::799420973518:policy/MPAWSElasticBeanstalkService'
   ]);
 
   if (appConfig.gracefulShutdown) {
@@ -467,7 +467,7 @@ export async function reconfig(api) {
     const desiredEbConfig = createDesiredConfig(
       api.getConfig(),
       api.getSettings(),
-      config.app.longEnvVars ? 1 : false
+      config.app.longEnvVars ? "latest_version" : false
     );
 
     if (config.app.longEnvVars) {
@@ -477,7 +477,7 @@ export async function reconfig(api) {
     const {
       SolutionStacks
     } = await beanstalk.listAvailableSolutionStacks().promise();
-    const solutionStack = SolutionStacks.find(name => name.endsWith('running Node.js'));
+    const solutionStack = SolutionStacks.find(name => name.endsWith('running Node.js 14'));
 
     const [version] = await ebVersions(api);
     await beanstalk.createEnvironment({
@@ -505,7 +505,7 @@ export async function reconfig(api) {
     let nextEnvVersion = 0;
     if (safeToReconfig) {
       const currentEnvVersion = await largestEnvVersion(api);
-      nextEnvVersion = currentEnvVersion + 1;
+      nextEnvVersion = currentEnvVersion;
     }
     const desiredEbConfig = createDesiredConfig(
       api.getConfig(),
